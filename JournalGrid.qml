@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import JournalView 1.0
+import JournalModel 1.0
 
 TableView {
 
@@ -13,7 +13,7 @@ TableView {
         return 300
     }
 
-    model: JournalView {}
+    model: JournalModel {}
 
     ScrollBar.vertical: ScrollBar {}
     ScrollBar.horizontal: ScrollBar {}

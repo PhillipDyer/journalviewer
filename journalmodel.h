@@ -1,20 +1,20 @@
-#ifndef JOURNALVIEW_H
-#define JOURNALVIEW_H
+#ifndef JOURNALMODEL_H
+#define JOURNALMODEL_H
 
 #include <qqml.h>
 #include <QAbstractTableModel>
 #include <vector>
 #include <string>
+#include <map>
 #include "journalinterface.h"
-
-class JournalView : public QAbstractTableModel
+class JournalModel : public QAbstractTableModel
 {
     Q_OBJECT
     QML_ELEMENT
     QML_ADDED_IN_VERSION(1,1)
 
 public:
-    JournalView(QObject * parent = nullptr);
+    JournalModel(QObject * parent = nullptr);
 
     int rowCount(const QModelIndex & index = QModelIndex()) const override;
 
@@ -26,8 +26,8 @@ public:
 
 private:
 
-    std::shared_ptr<sd_journal> m_Journal;
-    std::vector<std::string> m_ColumnHeaders;
+    JournalInterface m_Journal;
+    std::map<int, std::vector<std::string>> m_Data;
 };
 
-#endif // JOURNALVIEW_H
+#endif // JOURNALMODEL_H

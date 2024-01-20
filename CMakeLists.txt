@@ -23,7 +23,8 @@ qt_add_qml_module(appjournalviewer
     QML_FILES JournalGrid.qml
     QML_FILES NavigationMenu.qml
     SOURCES journalinterface.h journalinterface.cpp
-    SOURCES journalview.h journalview.cpp
+    SOURCES journalmodel.h journalmodel.cpp
+    SOURCES navmodel.h navmodel.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

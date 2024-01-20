@@ -1,18 +1,18 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include "journalinterface.h"
-#include "journalview.h"
-#include <iostream>
+#include "journalmodel.h"
+#include "navmodel.h"
+
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    JournalView journalView;
 
-    qmlRegisterType<JournalView>("JournalView", 1, 0, "JournalViewModel");
+    qmlRegisterType<JournalModel>("JournalModel", 1, 0, "JournalModel");
+    qmlRegisterType<NavModel>("NavModel", 1, 0, "NavModel");
 
     QObject::connect(
         &engine,
@@ -23,18 +23,6 @@ int main(int argc, char *argv[])
 
 
     engine.loadFromModule("journalviewer", "Main");
-
-    JournalInterface jrnl;
-
-    auto fields = jrnl.retrieveFields();
-
-    std::cout << "Journal Fields as follows: " << std::endl;
-    for(auto & f : fields)
-    {
-        std::cout << f << std::endl;
-    }
-
-    std::cout << "Number of Fields " << fields.size() << std::endl;
 
     return app.exec();
 }
