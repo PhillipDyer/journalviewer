@@ -6,7 +6,9 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "journalfields.h"
 #include "journalinterface.h"
+
 class JournalModel : public QAbstractTableModel
 {
     Q_OBJECT

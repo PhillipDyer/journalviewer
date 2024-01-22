@@ -35,11 +35,26 @@ bool JournalInterface::nextEntry() {
 }
 
 const std::string JournalInterface::readEntry(const std::string & field) {
+
     const char * data;
     size_t length = 0;
-    sd_journal_get_data(m_Journal.get(),field.c_str(),(const void **)&data,&length);
 
-    std::string output(data);
+    auto response = sd_journal_get_data(m_Journal.get(),field.c_str(),(const void **)&data,&length);
+
+    std::string output;
+
+    if(response >= 0)
+    {
+        output = data;
+
+        if(output.empty() == false)
+        {
+            //nuke the beginning text on the field which is the field + '='
+            auto begin = field.size() + 1;
+
+            output = output.substr(begin, std::string::npos);
+        }
+    }
     return std::move(output);
 }
 
