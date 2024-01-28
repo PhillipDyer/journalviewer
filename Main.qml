@@ -40,7 +40,7 @@ Window {
             anchors.bottom: parent.bottom
             anchors.top : parent.top
             anchors.left: parent.left
-            width: 110
+            width: 300
             NavigationMenu { }
         }
 

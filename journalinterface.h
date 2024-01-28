@@ -4,7 +4,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <journalfields.h>
 #include <systemd/sd-journal.h>
+#include <tuple>
 
 //Forward Declaration to JournalDeletor Functor
 //Use an empty Namespace to keep it only useable
@@ -29,7 +31,13 @@ public:
 
     bool nextEntry();
 
+    bool filterOnField(const Fields & field);
+
+    bool filterOnUniqueField(const Fields & field);
+
     const std::string readEntry(const std::string & field);
+
+    const std::tuple<std::string, bool> readUniqueEntry(const Fields &field);
 
     std::vector<std::string> retrieveFields();
 private:

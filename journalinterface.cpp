@@ -34,6 +34,29 @@ bool JournalInterface::nextEntry() {
     }
 }
 
+bool JournalInterface::filterOnField(const Fields &field)
+{
+    std::string command = JournalFields::getCommandText(field);
+
+    return true;
+}
+
+bool JournalInterface::filterOnUniqueField(const Fields &field)
+{
+    std::string command = JournalFields::getCommandText(field);
+
+    auto result = sd_journal_query_unique(m_Journal.get(), command.c_str());
+
+    if(result == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 const std::string JournalInterface::readEntry(const std::string & field) {
 
     const char * data;
@@ -56,6 +79,43 @@ const std::string JournalInterface::readEntry(const std::string & field) {
         }
     }
     return std::move(output);
+}
+
+const std::tuple<std::string, bool> JournalInterface::readUniqueEntry(const Fields &field)
+{
+    std::string command = JournalFields::getCommandText(field);
+
+    const char * data;
+    size_t length = 0;
+
+    auto response = sd_journal_enumerate_unique(m_Journal.get(),(const void **)&data,&length);
+
+    std::string output;
+
+    bool more_entries_available;
+
+    if(response >= 0)
+    {
+        output = data;
+
+        if(output.empty() == false)
+        {
+            //nuke the beginning text on the field which is the field + '='
+            auto begin = command.size() + 1;
+
+            output = output.substr(begin, std::string::npos);
+        }
+    }
+
+    if(response <= 0)
+    {
+        more_entries_available = false;
+    }
+    else
+    {
+        more_entries_available = true;
+    }
+    return std::move(std::make_tuple(output, more_entries_available));
 }
 
 std::vector<std::string> JournalInterface::retrieveFields() {

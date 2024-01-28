@@ -1,21 +1,25 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import NavModel 1.0
 
-GridLayout{
+ListView{
     anchors.fill: parent
     id: theNavLayout
-    columns: 1
-    flow: GridLayout.TopToBottom
+    spacing: 50 // 'b' space between elements
+    orientation:  Qt.Vertical
+    model: NavModel {}
 
-    Button {
-        text: qsTr("button 1")
-    }
-    Button {
-        text: qsTr("button 2")
-    }
-    Button {
-        text: qsTr("button 3")
+    delegate: Rectangle {
+        color: "yellow"
+        border.color: "black"
+        border.width: 1
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        Text{
+            text: display
+        }
     }
 
     ScrollBar.vertical: ScrollBar { }
