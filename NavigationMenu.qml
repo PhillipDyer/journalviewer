@@ -6,7 +6,6 @@ import NavModel 1.0
 ListView{
     anchors.fill: parent
     id: theNavLayout
-    spacing: 50 // 'b' space between elements
     orientation:  Qt.Vertical
     model: NavModel {}
 
@@ -14,11 +13,20 @@ ListView{
         color: "yellow"
         border.color: "black"
         border.width: 1
+        height: 40
+        width: parent.width
         anchors.left: parent.left
-        anchors.right: parent.right
 
         Text{
             text: display
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                console.log("clicked " + display)
+                theNavLayout.currentIndex = index
+            }
         }
     }
 
