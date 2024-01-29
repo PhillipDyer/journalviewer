@@ -24,10 +24,6 @@ private:
     JournalInterface m_Journal;
     std::map<int, std::string> m_Data;
 
- public slots:
-
-    void itemSelected(QQuickItem * item, QObject * sender);
-
 };
 
 #endif // NAVMODEL_H

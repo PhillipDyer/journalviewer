@@ -31,7 +31,7 @@ public:
 
     bool nextEntry();
 
-    bool filterOnField(const Fields & field);
+    bool filterOnField(const Fields & field, const std::string & entry);
 
     bool filterOnUniqueField(const Fields & field);
 

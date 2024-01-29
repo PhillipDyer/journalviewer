@@ -41,7 +41,11 @@ Window {
             anchors.top : parent.top
             anchors.left: parent.left
             width: 300
-            NavigationMenu { }
+            NavigationMenu {
+                onListViewClicked: (index, msg) => {
+                    journal.updateBootID(msg)
+                }
+            }
         }
 
         Rectangle {
@@ -52,7 +56,9 @@ Window {
             anchors.right: parent.right
             Layout.fillWidth: true
             Layout.fillHeight: true
-            JournalGrid { }
+            JournalGrid {
+                id: journal
+            }
         }
     }
 }

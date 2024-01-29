@@ -24,12 +24,21 @@ public:
 
     QVariant data(const QModelIndex & index, int role) const override;
 
+    void filterOnBootID(const QString boot_id);
+
+    void update();
+
     QHash<int, QByteArray> roleNames() const override;
 
 private:
 
     JournalInterface m_Journal;
     std::map<int, std::vector<std::string>> m_Data;
+
+public slots:
+
+    void updateQueryBootID(QString boot_id);
+
 };
 
 #endif // JOURNALMODEL_H

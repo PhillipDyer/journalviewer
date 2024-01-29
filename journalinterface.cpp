@@ -1,5 +1,6 @@
 #include "journalinterface.h"
 #include <utility>
+#include <sstream>
 
 
 JournalInterface::JournalInterface() {
@@ -34,11 +35,24 @@ bool JournalInterface::nextEntry() {
     }
 }
 
-bool JournalInterface::filterOnField(const Fields &field)
+bool JournalInterface::filterOnField(const Fields &field, const std::string & entry)
 {
     std::string command = JournalFields::getCommandText(field);
 
-    return true;
+    std::stringstream command_stream;
+
+    command_stream << command << '=' << entry;
+
+    auto result = sd_journal_add_match(m_Journal.get(), command_stream.str().c_str(), 0);
+
+    if(result == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool JournalInterface::filterOnUniqueField(const Fields &field)

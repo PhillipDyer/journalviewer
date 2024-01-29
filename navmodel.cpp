@@ -38,8 +38,3 @@ QHash<int, QByteArray> NavModel::roleNames() const
 {
     return { {Qt::DisplayRole, "display"} };
 }
-
-void NavModel::itemSelected(QQuickItem *item, QObject *sender)
-{
-
-}

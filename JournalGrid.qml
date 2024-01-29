@@ -15,6 +15,10 @@ TableView {
 
     model: JournalModel {}
 
+    function updateBootID(bootid) {
+        model.updateQueryBootID(bootid)
+    }
+
     ScrollBar.vertical: ScrollBar {}
     ScrollBar.horizontal: ScrollBar {}
 

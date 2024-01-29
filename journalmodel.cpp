@@ -1,30 +1,11 @@
 #include "journalmodel.h"
 #include "journalinterface.h"
+#include <iostream>
 
 JournalModel::JournalModel(QObject * parent) :
     QAbstractTableModel(parent) {
 
-    int number = 0;
-    m_Data.insert(std::make_pair(number,JournalFields::getFieldList()));
-
-    while(m_Journal.nextEntry() == true)
-    {
-        ++number;
-
-        if(number > 5000)
-        {
-            break;
-        }
-
-        //Pull out all the fields
-        std::vector<std::string> data_row;
-        for(auto & item : m_Data.at(0))
-        {
-            auto data = m_Journal.readEntry(JournalFields::getCommandText(item));
-            data_row.push_back(data);
-        }
-        m_Data.insert(std::make_pair(number,data_row));
-    }
+    this->update();
 }
 
 int JournalModel::rowCount(const QModelIndex & index) const
@@ -56,8 +37,49 @@ QVariant JournalModel::data(const QModelIndex & index, int role) const
     return QVariant();
 }
 
+void JournalModel::filterOnBootID(const QString boot_id)
+{
+    emit layoutAboutToBeChanged();
+
+    m_Journal.filterOnField(Fields::BOOTID, boot_id.toStdString());
+    this->update();
+
+    emit layoutChanged();
+}
+
+void JournalModel::update()
+{
+    int number = 0;
+    m_Data.clear();
+    m_Data.insert(std::make_pair(number,JournalFields::getFieldList()));
+
+    while(m_Journal.nextEntry() == true)
+    {
+        ++number;
+
+        if(number > 5000)
+        {
+            break;
+        }
+
+        //Pull out all the fields
+        std::vector<std::string> data_row;
+        for(auto & item : m_Data.at(0))
+        {
+            auto data = m_Journal.readEntry(JournalFields::getCommandText(item));
+            data_row.push_back(data);
+        }
+        m_Data.insert(std::make_pair(number,data_row));
+    }
+}
+
 QHash<int, QByteArray> JournalModel::roleNames() const
 {
     return { {Qt::DisplayRole, "display"} };
+}
+
+void JournalModel::updateQueryBootID(QString boot_id)
+{
+    this->filterOnBootID(boot_id);
 }
 
