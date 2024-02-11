@@ -37,6 +37,16 @@ QVariant JournalModel::data(const QModelIndex & index, int role) const
     return QVariant();
 }
 
+QVariant JournalModel::headerData(const int section, const Qt::Orientation orientation, int role) const
+{
+    if(orientation == Qt::Horizontal)
+    {
+        return QString("%1").arg(m_Headers[section].c_str());
+    }
+
+    return QVariant();
+}
+
 void JournalModel::filterOnBootID(const QString boot_id)
 {
     emit layoutAboutToBeChanged();
@@ -49,27 +59,32 @@ void JournalModel::filterOnBootID(const QString boot_id)
 
 void JournalModel::update()
 {
+    m_DataFillThread.reset(new std::thread(std::bind(&JournalModel::updateThreadEntry, this)));
+}
+
+void JournalModel::updateThreadEntry()
+{
     int number = 0;
     m_Data.clear();
-    m_Data.insert(std::make_pair(number,JournalFields::getFieldList()));
+    m_Headers = JournalFields::getFieldList();
 
     while(m_Journal.nextEntry() == true)
     {
-        ++number;
-
-        if(number > 5000)
-        {
-            break;
-        }
 
         //Pull out all the fields
         std::vector<std::string> data_row;
-        for(auto & item : m_Data.at(0))
+        for(auto & item : m_Headers)
         {
             auto data = m_Journal.readEntry(JournalFields::getCommandText(item));
             data_row.push_back(data);
         }
-        m_Data.insert(std::make_pair(number,data_row));
+
+        {
+            std::scoped_lock<std::mutex> scoped_lock(m_DataProtector);
+            m_Data.insert(std::make_pair(number,data_row));
+        }
+
+        ++number;
     }
 }
 
@@ -81,5 +96,17 @@ QHash<int, QByteArray> JournalModel::roleNames() const
 void JournalModel::updateQueryBootID(QString boot_id)
 {
     this->filterOnBootID(boot_id);
+}
+
+void JournalModel::addRows()
+{
+    std::map<int, std::vector<std::string>> temp_data;
+
+    {
+        std::scoped_lock<std::mutex> scoped_lock(m_DataProtector);
+        temp_data.swap(m_Data);
+    }
+
+
 }
 

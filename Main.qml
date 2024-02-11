@@ -56,8 +56,21 @@ Window {
             anchors.right: parent.right
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            HorizontalHeaderView {
+                id: horizontalHeader
+                anchors.left: parent.left
+                anchors.top: parent.top
+                syncView: journal
+                clip: true
+            }
+
             JournalGrid {
                 id: journal
+                anchors.top: horizontalHeader.bottom
+                anchors.left : parent.left
+                anchors.right : parent.right
+                anchors.bottom : parent.bottom
             }
         }
     }
