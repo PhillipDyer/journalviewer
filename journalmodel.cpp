@@ -8,6 +8,14 @@ JournalModel::JournalModel(QObject * parent) :
     this->update();
 }
 
+JournalModel::~JournalModel()
+{
+    if(m_DataFillThread)
+    {
+        m_DataFillThread->join();
+    }
+}
+
 int JournalModel::rowCount(const QModelIndex & index) const
 {
     return m_Data.size();
@@ -26,7 +34,12 @@ QVariant JournalModel::data(const QModelIndex & index, int role) const
     case Qt::DisplayRole:
     {
 
-        return QString("%1").arg(m_Data.at(index.row())[index.column()].c_str());
+        auto row = index.row();
+        auto column = index.column();
+
+        auto data_string = m_Data.at(row)[column];
+
+        return QString("%1").arg(data_string.c_str());
 
     }
 
@@ -49,12 +62,8 @@ QVariant JournalModel::headerData(const int section, const Qt::Orientation orien
 
 void JournalModel::filterOnBootID(const QString boot_id)
 {
-    emit layoutAboutToBeChanged();
-
     m_Journal.filterOnField(Fields::BOOTID, boot_id.toStdString());
     this->update();
-
-    emit layoutChanged();
 }
 
 void JournalModel::update()
@@ -68,24 +77,51 @@ void JournalModel::updateThreadEntry()
     m_Data.clear();
     m_Headers = JournalFields::getFieldList();
 
-    while(m_Journal.nextEntry() == true)
+    while(true)
     {
+        auto start_index = number;
 
         //Pull out all the fields
-        std::vector<std::string> data_row;
-        for(auto & item : m_Headers)
+        std::map<int, std::vector<std::string> > temp_holder;
+
+        bool next_entry;
+
+        for(auto x = 0; x < 100; ++x)
         {
-            auto data = m_Journal.readEntry(JournalFields::getCommandText(item));
-            data_row.push_back(data);
+            next_entry = m_Journal.nextEntry();
+
+            if(next_entry == false)
+            {
+                break;  //We are done.
+            }
+
+            std::vector<std::string> data_row;
+            for(auto & item : m_Headers)
+            {
+                auto data = m_Journal.readEntry(JournalFields::getCommandText(item));
+                data_row.push_back(data);
+            }
+            temp_holder.insert(std::make_pair(number, data_row));
+            ++number;
         }
+
+        this->beginInsertColumns(QModelIndex(), start_index, number);
 
         {
             std::scoped_lock<std::mutex> scoped_lock(m_DataProtector);
-            m_Data.insert(std::make_pair(number,data_row));
+            m_Data.merge(temp_holder);
         }
 
-        ++number;
+        this->endInsertRows();
+
+        if(next_entry == false)
+        {
+            break;
+        }
     }
+
+    std::cout << "Written: " << m_Data.size() << " entries to screen." << std::endl;
+
 }
 
 QHash<int, QByteArray> JournalModel::roleNames() const

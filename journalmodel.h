@@ -20,6 +20,8 @@ class JournalModel : public QAbstractTableModel
 public:
     JournalModel(QObject * parent = nullptr);
 
+    virtual ~JournalModel();
+
     int rowCount(const QModelIndex & index = QModelIndex()) const override;
 
     int columnCount(const QModelIndex & index = QModelIndex()) const override;
